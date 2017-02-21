@@ -38,4 +38,6 @@ program
 4. optional CloudWatch configuration
 
 ## How to run the program
-```./watchdog-run.py```
+```bash
+./watchdog-run.py
+```
