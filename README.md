@@ -1,5 +1,5 @@
 # phantomjs-watchdog
-PhantomJS website watchdog with Slack and CloudWatch features
+PhantomJS oAuth website watchdog with Slack and CloudWatch features
 
 ## What does this do?
 This system is a watchdog for oAuth authentication that will report
