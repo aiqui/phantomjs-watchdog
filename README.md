@@ -13,9 +13,7 @@ $ cp config.js.template config.js
 $ cp watchdog-run.ini.template watchdog-run.ini
 ```
 
-Download a version of PhantomJS and set the link in **watchdog-run.ini**.
-
-Here are some of the values you'll need to set in config.js:
+Here are some of the values you'll need to set in **config.js**:
 
 1. **USERNAME** and **PASSWORD** - these will be used to log into the site
 
@@ -28,12 +26,12 @@ button
 
 4. **ending values** - this should be set to the URL of the ending page
 
-And here are some of the values to be set in watchdog-run.ini:
+And here are some of the values to be set in **watchdog-run.ini**:
 
 1. **reporting URL** - a protected site with the reports created by this
 program
 
-2. location of PhantomJS
+2. location of PhantomJS (download a version of PhantomJS)
 
 3. optional Slack configuration
 
