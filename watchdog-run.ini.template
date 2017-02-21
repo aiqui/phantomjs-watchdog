@@ -9,7 +9,7 @@ zone_local  = America/New_York
 zone_global = GMT
 
 [system]
-log_dir         = logs ;;; Main directory for all logs
+log_dir         = /var/www/html/phantomjs-logs ;;; Main directory for all logs
 report_url      = http://REPORT-URL-HERE/ ;;; Watchdog report web access
 expire_log_days = 30 ;;; Expiration of log directories
 phantomjs       = ./phantomjs ;;; path of PhantomJS program

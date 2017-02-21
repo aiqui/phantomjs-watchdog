@@ -13,6 +13,13 @@ $ cp config.js.template config.js
 $ cp watchdog-run.ini.template watchdog-run.ini
 ```
 
+
+### Log directory
+Create a log directory that will be used to hold all log files.  This
+log directory will configured in **watchdog-run.ini**:
+
+
+### PhantomJS configuration: config.js
 Here are some of the values you'll need to set in **config.js**:
 
 1. **USERNAME** and **PASSWORD** - these will be used to log into the site
@@ -26,7 +33,10 @@ button
 
 4. **ending values** - this should be set to the URL of the ending page
 
-And here are some of the values to be set in **watchdog-run.ini**:
+
+### Python watchdog manager configuration: watchdog-run.ini
+
+Here are some of the values to be set in **watchdog-run.ini**:
 
 1. **reporting URL** - a protected site with the reports created by this
 program
