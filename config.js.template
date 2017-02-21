@@ -1,0 +1,31 @@
+var config = {};
+
+config.oauth = {
+    'username': 'USERNAME',
+    'password': 'PASSWORD',
+};
+
+config.sites = {
+    'start_url': 'https://YOUR-URL-HERE',
+    'login':  {
+	'url':            'https://EXPECTED-LOGIN-URL',
+	'description':    'description of login',
+	'snapshot':       'step2-login.jpeg',
+	'login_username': 'username',
+	'login_password': 'password',
+	'login_button':   'login-button',
+    },
+    'ending': {
+	'url':         'https://EXPECTED-FINAL-URL'
+	'description': 'description of final page',
+	'snapshot':    'step3-login.jpeg',
+    },
+};
+
+config.ignore_redirects = /(google\.com|doubleclick|demdex\.net)/i;
+
+config.browser = {
+    'size': { width: 1200, height: 1000 },
+};
+
+module.exports = config;

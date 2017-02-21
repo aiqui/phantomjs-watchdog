@@ -1,0 +1,30 @@
+;;; Configuration for watchdog manager
+
+[process]
+timeout_secs = 30 ;;; Number of seconds before a process should be killed
+poll_secs    = 2  ;;; Number of seconds to poll a process
+
+[time]
+zone_local  = America/New_York
+zone_global = GMT
+
+[system]
+log_dir         = logs ;;; Main directory for all logs
+report_url      = http://REPORT-URL-HERE/ ;;; Watchdog report web access
+expire_log_days = 30 ;;; Expiration of log directories
+phantomjs       = ./phantomjs ;;; path of PhantomJS program
+
+[slack]
+url     = https://hooks.slack.com/services/YOUR-SLACK-URL
+channel = your-channel
+user    = your-slack-user
+emoji   = :dog:
+
+[cloudwatch]
+access_id =       AWS-ACCESS-ID
+secret_key =      AWS-ACCESS-KEY
+metric_watchdog = metric-name-here
+server_id =       aws-server-id-here
+server_name =     aws-server-name-here
+failure_time =    999.9  ;;; Time that will show in CloudWatch when an error occurs
+
