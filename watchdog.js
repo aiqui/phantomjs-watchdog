@@ -55,6 +55,13 @@ page.onResourceReceived = function(oResponse) {
     var sRedirect = oResponse.redirectURL;
     if (sRedirect !== null && sRedirect.search(config.ignore_redirects) == -1 && sRedirect != sLastRedirect) {
 	console.log('Redirect: ' + oResponse.redirectURL);
+	if (oResponse.headers.length > 0) {
+	    console.log('Response header:');
+	    oResponse.headers.forEach(function(oHeader) {
+		console.log('  ' + oHeader.name + ': ' + oHeader.value);
+	    });
+	}
+	console.log('');
 	sLastRedirect = sRedirect;
     }
 };
