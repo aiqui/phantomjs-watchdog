@@ -20,6 +20,11 @@ var sLastRedirect     = null;
 var page = require('webpage').create();
 page.viewportSize = config.browser.size;
 
+var errorMsg = function (sMsg) {
+    console.log(sMsg);
+    phantom.exit();
+};
+
 // Route "console.log()" calls from within the Page context to the main Phantom context
 page.onConsoleMessage = function(sMsg) {
     // Avoiding weird error
@@ -41,6 +46,7 @@ page.onLoadStarted = function() {
     // console.log("load started");
 };
 
+
 page.onLoadFinished = function(sStatus) {
     bLoadInProgress = false;
     if (sStatus !== 'success') {
@@ -51,7 +57,17 @@ page.onLoadFinished = function(sStatus) {
     }
 };
 
+page.onResourceRequested = function(oRequest) {
+    if (oRequest.url.search(config.ignore_resource_urls) === -1) {
+	console.log("Request URL: " + oRequest.url + "\n" + JSON.stringify(oRequest) + "\n");
+    }
+};
+
 page.onResourceReceived = function(oResponse) {
+    if (oResponse.url.search(config.ignore_resource_urls) === -1) {
+	console.log("Response URL: " + oResponse.url + "\nHeaders: " + JSON.stringify(oResponse.headers) + "\n");
+    }
+    /*
     var sRedirect = oResponse.redirectURL;
     if (sRedirect !== null && sRedirect.search(config.ignore_redirects) == -1 && sRedirect != sLastRedirect) {
 	console.log('Redirect: ' + oResponse.redirectURL);
@@ -64,11 +80,7 @@ page.onResourceReceived = function(oResponse) {
 	console.log('');
 	sLastRedirect = sRedirect;
     }
-};
-
-var errorMsg = function (sMsg) {
-    console.log(sMsg);
-    phantom.exit();
+*/
 };
 
 var getSnapshot = function (sFile) {

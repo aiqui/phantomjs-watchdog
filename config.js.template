@@ -22,7 +22,7 @@ config.sites = {
     },
 };
 
-config.ignore_redirects = /(google\.com|doubleclick|demdex\.net)/i;
+config.ignore_resource_urls = /(google\.com|doubleclick|demdex\.net|typekit|google-analytics)/i;
 
 config.browser = {
     'size': { width: 1200, height: 1000 },
