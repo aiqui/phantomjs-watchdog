@@ -14,7 +14,6 @@ var sLogDir = 'logs';
 // Flags for controlling asynchronous processes
 var bLoadInProgress   = false;
 var iTestIndex        = 0;
-var sLastRedirect     = null;
 
 // PhantomJS connection and browser sizing
 var page = require('webpage').create();
@@ -67,20 +66,6 @@ page.onResourceReceived = function(oResponse) {
     if (oResponse.url.search(config.ignore_resource_urls) === -1) {
 	console.log("Response URL: " + oResponse.url + "\nHeaders: " + JSON.stringify(oResponse.headers) + "\n");
     }
-    /*
-    var sRedirect = oResponse.redirectURL;
-    if (sRedirect !== null && sRedirect.search(config.ignore_redirects) == -1 && sRedirect != sLastRedirect) {
-	console.log('Redirect: ' + oResponse.redirectURL);
-	if (oResponse.headers.length > 0) {
-	    console.log('Response header:');
-	    oResponse.headers.forEach(function(oHeader) {
-		console.log('  ' + oHeader.name + ': ' + oHeader.value);
-	    });
-	}
-	console.log('');
-	sLastRedirect = sRedirect;
-    }
-*/
 };
 
 var getSnapshot = function (sFile) {
