@@ -33,7 +33,7 @@ page.onConsoleMessage = function(sMsg) {
 };
 
 page.onAlert = function(sMsg) {
-    console.log('alert: ' + sMsg);
+    console.log('Alert: ' + sMsg);
 };
 
 page.onError = function(sMsg, aTrace) {
