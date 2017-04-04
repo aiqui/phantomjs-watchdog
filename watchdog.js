@@ -37,15 +37,19 @@ page.onAlert = function(sMsg) {
 };
 
 page.onError = function(sMsg, aTrace) {
-    var aMsgStack = ['ERROR: ' + sMsg];
+    var aMsgStack = ['JavaScript error: ' + sMsg];
     if (aTrace && aTrace.length) {
-        aMsgStack.push('TRACE:');
+        aMsgStack.push('Trace:');
+	var sLastMsg = "";
         aTrace.forEach(function(t) {
-            aMsgStack.push(' -> ' + t.file + ': ' + t.line + (t.function ? ' (in function "' + t.function + '")' : ''));
+	    var sTraceMsg = ' -> ' + t.file + ': ' + t.line + (t.function ? ' (function "' + t.function + '")' : '');
+	    if (sTraceMsg != sLastMsg) {
+		aMsgStack.push(sTraceMsg);
+		sLastMsg = sTraceMsg;
+	    }
         });
     }
-    // uncomment to log into the console 
-    console.error(aMsgStack.join('\n'));
+    console.error(aMsgStack.join("\n"));
 };
 
 page.onLoadStarted = function() {
