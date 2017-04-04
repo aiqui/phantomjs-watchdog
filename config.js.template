@@ -24,6 +24,11 @@ config.sites = {
 
 config.ignore_resource_urls = /(google\.com|doubleclick|demdex\.net|typekit|google-analytics)/i;
 
+config.ignore_console_errors = [
+    'DFPTargetKeys',
+    'minimal-ui',
+];
+
 config.browser = {
     'size': { width: 1200, height: 1000 },
 };
