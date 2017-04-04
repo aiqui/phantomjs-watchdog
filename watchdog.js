@@ -36,8 +36,16 @@ page.onAlert = function(sMsg) {
     console.log('alert: ' + sMsg);
 };
 
-page.onError = function(sMsg) {
-    errorMsg('error: ' + sMsg);
+page.onError = function(sMsg, aTrace) {
+    var aMsgStack = ['ERROR: ' + sMsg];
+    if (aTrace && aTrace.length) {
+        aMsgStack.push('TRACE:');
+        aTrace.forEach(function(t) {
+            aMsgStack.push(' -> ' + t.file + ': ' + t.line + (t.function ? ' (in function "' + t.function + '")' : ''));
+        });
+    }
+    // uncomment to log into the console 
+    console.error(aMsgStack.join('\n'));
 };
 
 page.onLoadStarted = function() {
