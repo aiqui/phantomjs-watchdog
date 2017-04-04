@@ -26,10 +26,10 @@ var errorMsg = function (sMsg) {
 
 // Route "console.log()" calls from within the Page context to the main Phantom context
 page.onConsoleMessage = function(sMsg) {
-    // Avoiding weird error
+    // Avoiding weird errors
     if (sMsg.search('DFPTargetKeys') !== -1)
 	return;
-    console.log(sMsg);
+    console.log("Console message: " + sMsg + "\n");
 };
 
 page.onAlert = function(sMsg) {
