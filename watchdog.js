@@ -49,7 +49,7 @@ page.onError = function(sMsg, aTrace) {
 	    }
         });
     }
-    console.error(aMsgStack.join("\n"));
+    console.error(aMsgStack.join("\n") + "\n");
 };
 
 page.onLoadStarted = function() {
