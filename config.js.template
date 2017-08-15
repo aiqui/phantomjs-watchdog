@@ -33,4 +33,8 @@ config.browser = {
     'size': { width: 1200, height: 1000 },
 };
 
+// dump headers: none, partial or full
+config.dump_request_header = 'none';
+config.dump_response_header = 'partial';
+
 module.exports = config;

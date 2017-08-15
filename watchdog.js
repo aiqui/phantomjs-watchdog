@@ -94,7 +94,7 @@ page.logHeader = function (sDesc, sUrl, oHeader, sConfig, aFields) {
 
     // Partial display of certain fields
     else if (sConfig == 'partial') {
-	sOutput = "";
+	var sOutput = "";
 	aFields.forEach(function (sField) {
 
 	    // Defined as a primary property
