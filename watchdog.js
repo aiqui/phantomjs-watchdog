@@ -73,15 +73,52 @@ page.onLoadFinished = function(sStatus) {
 
 page.onResourceRequested = function(oRequest) {
     if (oRequest.url.search(config.ignore_resource_urls) === -1) {
-	console.log("Request URL: " + oRequest.url + "\n" + JSON.stringify(oRequest) + "\n");
+	page.logHeader("Request", oRequest.url, oRequest.headers, config.dump_request_header, []);
     }
 };
 
 page.onResourceReceived = function(oResponse) {
     if (oResponse.url.search(config.ignore_resource_urls) === -1) {
-	console.log("Response URL: " + oResponse.url + "\nHeaders: " + JSON.stringify(oResponse.headers) + "\n");
+	page.logHeader("Response", oResponse.url, oResponse, config.dump_response_header,
+		       ['status', 'Location']);
     }
 };
+
+page.logHeader = function (sDesc, sUrl, oHeader, sConfig, aFields) {
+    console.log(sDesc + " URL: " + sUrl);
+
+    // Full display - simply dump the whole header
+    if (sConfig == 'full') {
+	console.log("Headers: " + JSON.stringify(oHeader) + "\n"); 
+    }
+
+    // Partial display of certain fields
+    else if (sConfig == 'partial') {
+	sOutput = "";
+	aFields.forEach(function (sField) {
+
+	    // Defined as a primary property
+	    if (oHeader[sField] !== undefined) {
+		sOutput += "  " + sField + " => " + oHeader[sField] + "\n";
+	    }
+
+	    // Search in the headers array of objects
+	    else if (oHeader.headers !== undefined) {
+		oHeader.headers.forEach(function (oBlock) {
+		    if (oBlock.name === sField) {
+			sOutput += "  " + sField + " => " + oBlock.value + "\n";
+		    }
+		});
+	    }
+	});
+	console.log(sOutput);
+    }
+
+    else {
+	console.log("");
+    }
+	
+}
 
 var getSnapshot = function (sFile) {
     page.render(sFile, { format: 'jpeg', quality: '80' });
