@@ -77,10 +77,15 @@ page.onResourceRequested = function(oRequest) {
     }
 };
 
+page.sLastResourceUrl = "";
 page.onResourceReceived = function(oResponse) {
     if (oResponse.url.search(config.ignore_resource_urls) === -1) {
+	if (page.sLastResourceUrl == oResponse.url && oResponse.status == '200') {
+	    return;
+	}
+	page.sLastResourceUrl = oResponse.url;
 	page.logHeader("Response", oResponse.url, oResponse, config.dump_response_header,
-		       ['status', 'Location']);
+		       ['Location', 'status']);
     }
 };
 
@@ -99,7 +104,13 @@ page.logHeader = function (sDesc, sUrl, oHeader, sConfig, aFields) {
 
 	    // Defined as a primary property
 	    if (oHeader[sField] !== undefined) {
-		sOutput += "  " + sField + " => " + oHeader[sField] + "\n";
+		if (sField == 'status' && oHeader['statusText'] !== undefined) {
+		    sValue = oHeader[sField] + " (" + oHeader['statusText'] + ")";
+		    sField = "HTTP status code";
+		} else {
+		    sValue = oHeader[sField];
+		}
+		sOutput += "  " + sField + " => " + sValue + "\n";
 	    }
 
 	    // Search in the headers array of objects
