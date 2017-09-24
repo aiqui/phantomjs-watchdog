@@ -1,0 +1,26 @@
+{
+  "name": "phantomjs-watchdog",
+  "version": "1.0.0",
+  "description": "PhantomJS oAuth website watchdog with Slack and CloudWatch features",
+  "main": "config.js",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "phantomjs": "^2.1.7",
+    "q": "^1.5.0",
+    "system": "^2.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aiqui/phantomjs-watchdog.git"
+  },
+  "author": "Charlie Hileman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aiqui/phantomjs-watchdog/issues"
+  },
+  "homepage": "https://github.com/aiqui/phantomjs-watchdog#readme"
+}

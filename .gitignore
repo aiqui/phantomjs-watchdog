@@ -1,4 +1,4 @@
 watchdog-run.ini
 config.js
 logs
-phantomjs
+phantomjsnode_modules
