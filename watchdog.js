@@ -7,6 +7,7 @@
 var system = require('system');
 var fs     = require('fs');
 var config = require('./config');
+var Q      = require('q');
 
 // Location for the log files - should be updated via command line args
 var sLogDir = 'logs';
@@ -19,9 +20,20 @@ var iTestIndex        = 0;
 var page = require('webpage').create();
 page.viewportSize = config.browser.size;
 
-var errorMsg = function (sMsg) {
-    console.log(sMsg);
-    phantom.exit();
+page.onError = function(sMsg, aTrace) {
+    var aMsgStack = ['JavaScript error: ' + sMsg];
+    if (aTrace && aTrace.length) {
+        aMsgStack.push('Trace:');
+	var sLastMsg = "";
+        aTrace.forEach(function(t) {
+	    var sTraceMsg = ' -> ' + t.file + ': ' + t.line + (t.function ? ' (function "' + t.function + '")' : '');
+	    if (sTraceMsg != sLastMsg) {
+		aMsgStack.push(sTraceMsg);
+		sLastMsg = sTraceMsg;
+	    }
+        });
+    }
+    console.log(aMsgStack.join("\n") + "\n");
 };
 
 // Route "console.log()" calls from within the Page context to the main Phantom context
@@ -39,37 +51,6 @@ page.onAlert = function(sMsg) {
     console.log('Alert: ' + sMsg);
 };
 
-page.onError = function(sMsg, aTrace) {
-    var aMsgStack = ['JavaScript error: ' + sMsg];
-    if (aTrace && aTrace.length) {
-        aMsgStack.push('Trace:');
-	var sLastMsg = "";
-        aTrace.forEach(function(t) {
-	    var sTraceMsg = ' -> ' + t.file + ': ' + t.line + (t.function ? ' (function "' + t.function + '")' : '');
-	    if (sTraceMsg != sLastMsg) {
-		aMsgStack.push(sTraceMsg);
-		sLastMsg = sTraceMsg;
-	    }
-        });
-    }
-    console.error(aMsgStack.join("\n") + "\n");
-};
-
-page.onLoadStarted = function() {
-    bLoadInProgress = true;
-    // console.log("load started");
-};
-
-
-page.onLoadFinished = function(sStatus) {
-    bLoadInProgress = false;
-    if (sStatus !== 'success') {
-        console.log('Unable to access network: ' + sStatus);
-        phantom.exit();
-    } else {
-        // console.log("load finished\n");
-    }
-};
 
 page.onResourceRequested = function(oRequest) {
     if (oRequest.url.search(config.ignore_resource_urls) === -1) {
@@ -148,69 +129,99 @@ var validateUrl = function (sUrl, sLocation, sImage) {
 	getSnapshot(sImagePath);
 	fs.write(sContentPath, page.content, 'w');
 	fs.write(sTextPath, page.plainText, 'w');
-        phantom.exit();
+	return false;
     } else {
 	console.log(sLocation + " successfully reached: " + page.url);
+	return true;
     }
 };
 
-var startSystem = function () {
+var initSystem = function () {
     var args = system.args;
+    var oDeferred = Q.defer();
     var sProgram = args[0].replace('/^.*\/', '');
+    console.log("Initializing system");
     if (args.length === 1) {
-	errorMsg('Format: ' + sProgram + ' LOG-DIR');
+        oDeferred.reject(new Error('Format: ' + sProgram + ' LOG-DIR'));
     } else {
 	sLogDir = args[1];
 	if (fs.isDirectory(sLogDir) == false) {
-	    errorMsg('Invalid log directory: ' + sLogDir);
+            oDeferred.reject(new Error('Invalid log directory: ' + sLogDir));
+	} else {
+            oDeferred.resolve();
 	}
     }
+    return oDeferred.promise;
 };
     
-// Array of steps to sequentially execute
-var aSteps = [
-
-    // Initialization of system
-    function () {
-	startSystem();
-    },
-
-    // Starting page
-    function() {
-        console.log("Starting URL: " + config.sites.start_url);
-        page.open(config.sites.start_url);
-    },
-
-    // Login page
-    function() {
-	var oConfig = config.sites.login;
-	validateUrl(oConfig.url, oConfig.description, oConfig.snapshot);
-        page.evaluate(function(oConfig, oAuth) {
-	    document.getElementById(oConfig.login_username).value = oAuth.username;
-	    document.getElementById(oConfig.login_password).value = oAuth.password;
-	    document.getElementById(oConfig.login_button).click();
-	}, oConfig, config.oauth);
-    },
+var startPage = function () {
+    var sStartUrl = config.sites.start_url;
+    var oDeferred = Q.defer();
     
-    // Ending page
-    function() {
-	var oConfig = config.sites.ending;
-	validateUrl(oConfig.url, oConfig.description, oConfig.snapshot);
-    },
-
-    // Keep final element 
-    "done"
-];
-
-
-setInterval(function() {
-    if (!bLoadInProgress && typeof aSteps[iTestIndex] == "function") {
-        // console.log("step " + (iTestIndex + 1));
-        aSteps[iTestIndex]();
-        iTestIndex++;
+    console.log("Starting URL: " + sStartUrl);
+    page.open(sStartUrl, function (sStatus) {
+        if (sStatus !== 'success') {
+            return oDeferred.reject(new Error('Cannot read the url : ' + sStartUrl));
+	}
+        oDeferred.resolve();
+    });
+    return oDeferred.promise;
+};
+	      
+var loginPage = function () {
+    var oConfig = config.sites.login;
+    var oDeferred = Q.defer();
+    
+    if (! validateUrl(oConfig.url, oConfig.description, oConfig.snapshot)) {
+        return oDeferred.reject(new Error("Login page not validated"));
     }
-    if (typeof aSteps[iTestIndex] != "function") {
-        // console.log("test complete!");
+    
+    page.onLoadFinished = function (status) {
+        if (status != 'success') {
+            return oDeferred.reject(new Error("Can't establish network connection"));
+        }
+        oDeferred.resolve();
+        console.log('Form submited');
+    }
+    
+    page.evaluate(function(oConfig, oAuth) {
+	document.getElementById(oConfig.login_username).value = oAuth.username;
+	document.getElementById(oConfig.login_password).value = oAuth.password;
+	document.getElementById(oConfig.login_button).click();
+    }, oConfig, config.oauth);
+    return oDeferred.promise;
+};
+
+var endPage = function (oConfig) {
+    var oConfig = config.sites.ending;
+    var oDeferred = Q.defer();
+    if (! validateUrl(oConfig.url, oConfig.description, oConfig.snapshot)) {
+        return oDeferred.reject(new Error("End page not validated"));
+    }
+    oDeferred.resolve();
+    return oDeferred.promise;
+};
+
+var closeBrowser = function () {
+    console.log('Closing session...');
+    var oDeferred = Q.defer();
+    setTimeout(function () {
+        oDeferred.resolve();
+        console.log('Session closed');
         phantom.exit();
-    }
-}, 50);
+    }, 50);
+    return oDeferred.promise;
+};
+
+var errorMsg = function (sMsg) {
+    console.log(sMsg);
+    phantom.exit();
+};
+
+initSystem()
+    .then(startPage)
+    .then(startPage)
+    .then(loginPage)
+    .then(endPage)
+    .then(closeBrowser)
+    .fail(errorMsg);
