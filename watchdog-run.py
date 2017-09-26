@@ -193,12 +193,15 @@ def cleanUpLogs (sTargetDir):
 
 # Main method for running codeception
 def runWatchdog (sTargetDir, aOptions):
-    sProg = getConfig('system', 'phantomjs')
-    aArgs = [ sProg, '--ignore-ssl-errors=true', 'watchdog.js', sTargetDir ]
+
+    # Prepare the args for running PhantomJS
+    sProg      = getConfig('system', 'phantomjs')
+    sCookieArg = '--cookies-file=' + getConfig('system', 'cookie_path')
+    aArgs      = [ sProg, '--ignore-ssl-errors=true', sCookieArg, 'watchdog.js', sTargetDir ]
 
     # Record the time before running
     fTimeStart = time.time()
-    sOutput  = shellCommand(aArgs, True, True)
+    sOutput    = shellCommand(aArgs, True, True)
     sTimeTotal = str(round(time.time() - fTimeStart, 1))
 
     # Determine if failed or not - failure time is abnormally high

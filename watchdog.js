@@ -169,9 +169,18 @@ var startPage = function () {
 };
 	      
 var loginPage = function () {
-    var oConfig = config.sites.login;
-    var oDeferred = Q.defer();
+    var oConfig    = config.sites.login;
+    var oEndConfig = config.sites.ending;
+    var oDeferred  = Q.defer();
     
+    // Already reaching the end page, probably through cookies - skip the login page
+    if (page.url.search(oEndConfig.url) == 0) {
+        console.log('Login form skipped - already logged in');
+        oDeferred.resolve();
+	return oDeferred.promise;
+    }
+	
+    // Validate the login page
     if (! validateUrl(oConfig.url, oConfig.description, oConfig.snapshot)) {
         return oDeferred.reject(new Error("Login page not validated"));
     }
@@ -181,9 +190,10 @@ var loginPage = function () {
             return oDeferred.reject(new Error("Can't establish network connection"));
         }
         oDeferred.resolve();
-        console.log('Form submited');
+        console.log('Login form submited');
     }
     
+    // Submit the login page
     page.evaluate(function(oConfig, oAuth) {
 	document.getElementById(oConfig.login_username).value = oAuth.username;
 	document.getElementById(oConfig.login_password).value = oAuth.password;
@@ -219,7 +229,6 @@ var errorMsg = function (sMsg) {
 };
 
 initSystem()
-    .then(startPage)
     .then(startPage)
     .then(loginPage)
     .then(endPage)

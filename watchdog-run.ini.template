@@ -12,7 +12,8 @@ zone_global = GMT
 log_dir         = /var/www/html/phantomjs-logs ;;; Main directory for all logs
 report_url      = http://REPORT-URL-HERE/ ;;; Watchdog report web access
 expire_log_days = 30 ;;; Expiration of log directories
-phantomjs       = ./phantomjs ;;; path of PhantomJS program
+phantomjs       = ./node_modules/phantomjs/bin/phantomjs ;;; path of PhantomJS program
+cookie_path     = /tmp/oauth-watchdog-cookies.tmp
 
 [slack]
 url     = https://hooks.slack.com/services/YOUR-SLACK-URL
