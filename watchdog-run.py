@@ -195,9 +195,14 @@ def cleanUpLogs (sTargetDir):
 def runWatchdog (sTargetDir, aOptions):
 
     # Prepare the args for running PhantomJS
-    sProg      = getConfig('system', 'phantomjs')
-    sCookieArg = '--cookies-file=' + getConfig('system', 'cookie_path')
-    aArgs      = [ sProg, '--ignore-ssl-errors=true', sCookieArg, 'watchdog.js', sTargetDir ]
+    sCookiePath = getConfig('system', 'cookie_path')
+    sProg       = getConfig('system', 'phantomjs')
+    sCookieArg  = '--cookies-file=' + sCookiePath;
+    aArgs       = [ sProg, '--ignore-ssl-errors=true', sCookieArg, 'watchdog.js', sTargetDir ]
+
+    # Clearing cookies before running
+    if aOptions.bClearCookies and os.path.isfile(sCookiePath):
+        os.remove(sCookiePath)
 
     # Record the time before running
     fTimeStart = time.time()
@@ -276,6 +281,7 @@ def main ():
     oParser.add_option("-c", "--cloudwatch", action="store_true", dest="bCloudwatch")
     oParser.add_option("-s", "--slack",      action="store_true", dest="bSlack")
     oParser.add_option("-f", "--slackfail",  action="store_true", dest="bSlackFailure")
+    oParser.add_option("-d", "--clear-cookies",  action="store_true", dest="bClearCookies")
     (aOptions, aArgs) = oParser.parse_args()
 
     # Validate the environment
