@@ -6,7 +6,10 @@ config.oauth = {
 };
 
 config.sites = {
-    'start_url': 'https://YOUR-URL-HERE',
+    'start': {
+	'url':      'https://YOUR-URL-HERE',
+	'snapshot': 'step1-login.jpeg',
+    },
     'login':  {
 	'url':            'https://EXPECTED-LOGIN-URL',
 	'description':    'description of login',

@@ -210,7 +210,10 @@ def runWatchdog (sTargetDir, aOptions):
     sTimeTotal = str(round(time.time() - fTimeStart, 1))
 
     # Determine if failed or not - failure time is abnormally high
-    if re.search(r'waiting room successfully reached', sOutput) != None:
+    sSuccessStr = getConfig('application', 'success_string')
+    if re.search(sSuccessStr, sOutput) != None:
+        for sFile in glob.glob(sTargetDir + "/*.jpeg"):
+            os.remove(sFile)
         bSuccess = True
         print "Website watchdog completed successfully, taking %s seconds" % sTimeTotal
     else:

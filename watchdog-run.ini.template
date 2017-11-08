@@ -15,6 +15,9 @@ expire_log_days = 30 ;;; Expiration of log directories
 phantomjs       = ./node_modules/phantomjs/bin/phantomjs ;;; path of PhantomJS program
 cookie_path     = /tmp/oauth-watchdog-cookies.tmp
 
+[application]
+success_string  = SUCCESS STRING GOES HERE
+
 [slack]
 url     = https://hooks.slack.com/services/YOUR-SLACK-URL
 channel = your-channel

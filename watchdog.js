@@ -117,19 +117,19 @@ var statusMsg = function (sMsg) {
     console.log("\n ==> " + sMsg);
 };
 
-var getSnapshot = function (sFile) {
-    page.render(sFile, { format: 'jpeg', quality: '80' });
+var getSnapshot = function (sImage) {
+    var sImagePath = sLogDir + "/" + sImage;
+    console.log("  - snapshot saved to: " + sImagePath);
+    page.render(sImagePath, { format: 'jpeg', quality: '40' });
 };
 
 var recordLastPage = function (sImage) {
-    var sImagePath   = sLogDir + "/" + sImage,
-	sContentPath = sLogDir + "/last-page.html",
+    var sContentPath = sLogDir + "/last-page.html",
 	sTextPath    = sLogDir + "/last-page.txt";
     console.log("  - final browser url: " + page.url);
-    console.log("  - snapshot saved to: " + sImagePath);
     console.log("  - last page content saved to: " + sContentPath);
     console.log("  - last page text saved to: " + sTextPath);
-    getSnapshot(sImagePath);
+    getSnapshot(sImage);
     fs.write(sContentPath, page.content, 'w');
     fs.write(sTextPath, page.plainText, 'w');
 };
@@ -170,14 +170,17 @@ var initSystem = function () {
 };
     
 var startPage = function () {
-    var sStartUrl = config.sites.start_url;
+    var oConfig   = config.sites.start;
+    var sStartUrl = oConfig.url;
     var oDeferred = Q.defer();
     
     statusMsg("Starting URL: " + sStartUrl);
     page.open(sStartUrl, function (sStatus) {
         if (sStatus !== 'success') {
+	    recordLastPage(oConfig.snapshot);
             oDeferred.reject(new Error('Cannot read the url : ' + sStartUrl));
 	} else {
+	    getSnapshot(oConfig.snapshot);
             oDeferred.resolve(true);
 	}
     });
@@ -199,6 +202,7 @@ var loginPage = function () {
     // Validate the login page
     if (! validateUrl(oConfig.url, oConfig.description, oConfig.snapshot)) {
         oDeferred.reject(new Error("Login page not validated"));
+	recordLastPage(oConfig.snapshot);
 	return oDeferred.promise;
     }
 
@@ -208,11 +212,14 @@ var loginPage = function () {
 		document.getElementById(oConfig.login_password) !== null &&
 		document.getElementById(oConfig.login_button) !== null);
     }, oConfig)) {
-	statusMsg("Could not find page elements needed to log in - recording last page");
+	statusMsg("Could not find page elements needed to log in");
 	recordLastPage(oConfig.snapshot);
         oDeferred.reject(new Error("Login page not reached"));
 	return oDeferred.promise;
     }
+
+    // Get the latest snapshot
+    getSnapshot(oConfig.snapshot);
 
     // Function to be run after evaluation
     page.onLoadFinished = function (status) {
@@ -237,8 +244,9 @@ var endPage = function (oConfig) {
     var oConfig = config.sites.ending;
     var oDeferred = Q.defer();
     if (! validateUrl(oConfig.url, oConfig.description, oConfig.snapshot)) {
+	recordLastPage(oConfig.snapshot);
         return oDeferred.reject(new Error("End page not validated"));
-    }
+    } 
     oDeferred.resolve(true);
     return oDeferred.promise;
 };
