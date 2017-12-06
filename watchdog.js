@@ -224,7 +224,7 @@ var loginPage = function () {
     // Function to be run after evaluation
     page.onLoadFinished = function (status) {
         if (status != 'success') {
-            oDeferred.reject(new Error("Can't establish network connection"));
+            oDeferred.reject(new Error("Can't establish network connection - status: " + status));
         } else {
             oDeferred.resolve(true);
             statusMsg("Login form submited");
