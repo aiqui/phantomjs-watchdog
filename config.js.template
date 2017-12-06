@@ -17,6 +17,7 @@ config.sites = {
 	'login_username': 'username',
 	'login_password': 'password',
 	'login_button':   'login-button',
+	'login_attempts': 3,
     },
     'ending': {
 	'url':         'https://EXPECTED-FINAL-URL'
