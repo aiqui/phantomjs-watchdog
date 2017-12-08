@@ -33,6 +33,8 @@ config.ignore_console_errors = [
     'minimal-ui',
 ];
 
+config.ignore_js_errors = true;
+
 config.browser = {
     'size': { width: 1200, height: 1000 },
 };

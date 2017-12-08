@@ -22,19 +22,22 @@ var page = require('webpage').create();
 page.viewportSize = config.browser.size;
 
 page.onError = function(sMsg, aTrace) {
-    var aMsgStack = ['JavaScript error: ' + sMsg];
-    if (aTrace && aTrace.length) {
-        aMsgStack.push('Trace:');
-	var sLastMsg = "";
-        aTrace.forEach(function(t) {
-	    var sTraceMsg = ' -> ' + t.file + ': ' + t.line + (t.function ? ' (function "' + t.function + '")' : '');
-	    if (sTraceMsg != sLastMsg) {
-		aMsgStack.push(sTraceMsg);
-		sLastMsg = sTraceMsg;
-	    }
-        });
+    if (config.ignore_js_errors == false) {
+	var aMsgStack = ['JavaScript error: ' + sMsg];
+	if (aTrace && aTrace.length) {
+            aMsgStack.push('Trace:');
+	    var sLastMsg = "";
+            aTrace.forEach(function(t) {
+		var sTraceMsg = ' -> ' + t.file + ': ' + t.line +
+		    (t.function ? ' (function "' + t.function + '")' : '');
+		if (sTraceMsg != sLastMsg) {
+		    aMsgStack.push(sTraceMsg);
+		    sLastMsg = sTraceMsg;
+		}
+            });
+	}
+	console.log(aMsgStack.join("\n") + "\n");
     }
-    console.log(aMsgStack.join("\n") + "\n");
 };
 
 // Route "console.log()" calls from within the Page context to the main Phantom context
@@ -53,16 +56,21 @@ page.onAlert = function(sMsg) {
 };
 
 
-page.onResourceRequested = function(oRequest) {
+// Log valid requests, skipping the unneeded requests
+page.onResourceRequested = function(oRequest, oNetworkRequest) {
     if (oRequest.url.search(config.ignore_resource_urls) === -1) {
 	page.logHeader("Request", oRequest.url, oRequest.headers, config.dump_request_header, []);
+    } else {
+	oNetworkRequest.abort();
     }
 };
 
 // Save the reason and URL in case of a resource error
 page.onResourceError = function(resourceError) {
-    page.sResourceError    = resourceError.errorString;
-    page.sResourceErrorUrl = resourceError.url;
+    if (resourceError.url.url.search(config.ignore_resource_urls) === -1) {
+	page.sResourceError    = resourceError.errorString;
+	page.sResourceErrorUrl = resourceError.url;
+    }
 };
 
 page.sLastResourceUrl = "";
@@ -78,6 +86,11 @@ page.onResourceReceived = function(oResponse) {
 };
 
 page.logHeader = function (sDesc, sUrl, oHeader, sConfig, aFields) {
+
+    if (! sUrl) {
+	return;
+    }
+    
     console.log(sDesc + " URL: " + sUrl);
 
     // Full display - simply dump the whole header
@@ -230,7 +243,7 @@ var loginPage = function () {
     // Function to be run after evaluation
     page.onLoadFinished = function (status) {
         if (status != 'success') {
-	    var sStatus = "Can't establish network connection";
+	    var sStatus = "Page load failed";
 	    if (typeof page.sResourceError !== 'undefined') {
 		sStatus += ", resource error reason: " + page.sResourceError + " url: " + page.sResourceErrorUrl;
 	    }
