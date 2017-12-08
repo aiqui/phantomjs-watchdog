@@ -59,6 +59,12 @@ page.onResourceRequested = function(oRequest) {
     }
 };
 
+// Save the reason and URL in case of a resource error
+page.onResourceError = function(resourceError) {
+    page.sResourceError    = resourceError.errorString;
+    page.sResourceErrorUrl = resourceError.url;
+};
+
 page.sLastResourceUrl = "";
 page.onResourceReceived = function(oResponse) {
     if (oResponse.url.search(config.ignore_resource_urls) === -1) {
@@ -224,7 +230,11 @@ var loginPage = function () {
     // Function to be run after evaluation
     page.onLoadFinished = function (status) {
         if (status != 'success') {
-            oDeferred.reject(new Error("Can't establish network connection - status: " + status));
+	    var sStatus = "Can't establish network connection";
+	    if (typeof page.sResourceError !== 'undefined') {
+		sStatus += ", resource error reason: " + page.sResourceError + " url: " + page.sResourceErrorUrl;
+	    }
+            oDeferred.reject(new Error(sStatus));
         } else {
             oDeferred.resolve(true);
             statusMsg("Login form submited");
