@@ -87,6 +87,7 @@ page.onResourceReceived = function(oResponse) {
 
 page.logHeader = function (sDesc, sUrl, oHeader, sConfig, aFields) {
 
+    // No URL defined - skip
     if (! sUrl) {
 	return;
     }
@@ -254,22 +255,12 @@ var loginPage = function () {
 	}
     }
 
-    // Determine the number of login attempts
-    var iLoginAttempts = (typeof oConfig.login_attempts !== 'undefined') ? oConfig.login_attempts : 1;
-
-    // Submit the login page (occassionally the page will not receive the click correctly)
-    while (iLoginAttempts > 1) {
-	page.evaluate(function(oConfig, oAuth) {
-            document.getElementById(oConfig.login_username).value = oAuth.username;
-            document.getElementById(oConfig.login_password).value = oAuth.password;
-            document.getElementById(oConfig.login_button).click();
-	}, oConfig, config.oauth);
-	if (document.getElementById(oConfig.login_username) === null) {
-	    break;
-	}
-	--iLoginAttempts;
-        statusMsg("Login form failed to accept submit - trying again");
-    }
+    // Submit the login page
+    page.evaluate(function(oConfig, oAuth) {
+        document.getElementById(oConfig.login_username).value = oAuth.username;
+        document.getElementById(oConfig.login_password).value = oAuth.password;
+        document.getElementById(oConfig.login_button).click();
+    }, oConfig, config.oauth);
     return oDeferred.promise;
 };
 
